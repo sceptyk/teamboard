@@ -47,7 +47,7 @@ const { data: members, isLoading: isMembersLoading } = useMembers(teamId);
 <template>
   <page-layout>
     <template #content>
-      <n-tabs type="line" animated default-value="planning">
+      <n-tabs type="line" size="large" default-value="planning">
         <n-tab-pane name="planning" tab="Planning">
           <planning-boards-tab :boards="planningBoards" :is-loading="isPlanningBoardsLoading" :members="members" />
         </n-tab-pane>

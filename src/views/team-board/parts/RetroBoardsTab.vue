@@ -6,15 +6,12 @@ import { computed, ref, toRef } from 'vue';
 import { deleteDoc, doc } from '@firebase/firestore';
 import CreateRetroBoardModal from '@/views/team-board/parts/CreateRetroBoardModal.vue';
 import dayjs from 'dayjs';
-import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import StyledLink from '@/components/styled/StyledLink.vue';
 import SkeletonListItem from '@/components/SkeletonListItem.vue';
 import type { FirebaseEntity } from '@/types/FirebaseEntity';
 import type { RetroBoard } from '@/types/RetroBoard';
 import type { TeamMember } from '@/types/TeamMember';
 import { useTeamAccess } from '@/composables/useTeamAccess';
-
-dayjs.extend(LocalizedFormat);
 
 const props = defineProps<{
   members: (TeamMember & FirebaseEntity)[];
