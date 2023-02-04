@@ -7,11 +7,11 @@ export const validEmailRule = [
       if (!value) {
         return new Error('Email is required');
       } else if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value)) {
-        return new Error('Age should be an integer');
+        return new Error('Value needs to be an email address');
       }
       return true;
     },
-    trigger: ['input', 'blur'],
+    trigger: ['blur'],
   },
 ];
 

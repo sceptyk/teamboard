@@ -1,29 +1,33 @@
 <script setup lang="ts">
-import { NList, NListItem, NThing, NTooltip, NButton, NSpace, NIcon } from 'naive-ui';
-import { useCollection, useCurrentUser, useFirestore } from 'vuefire';
+import { NList, NListItem, NThing, NTooltip, NButton, NSpace, NIcon, NSwitch } from 'naive-ui';
+import { useCurrentUser, useFirestore } from 'vuefire';
 import type { TeamMember } from '@/types/TeamMember';
 import { useRoute } from 'vue-router';
-import { computed, ref } from 'vue';
-import { addDoc, collection, deleteDoc, doc, Timestamp } from '@firebase/firestore';
+import { computed, ref, toRef } from 'vue';
+import { addDoc, collection, deleteDoc, doc, Timestamp, updateDoc } from '@firebase/firestore';
 import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/LocalizedFormat';
 import type { TeamInvitation } from '@/types/TeamInvitation';
 import { Link as LinkIcon } from '@vicons/ionicons5';
+import type { FirebaseEntity } from '@/types/FirebaseEntity';
+import SkeletonListItem from '@/components/SkeletonListItem.vue';
+import { useTeamAccess } from '@/composables/useTeamAccess';
 
 dayjs.extend(LocalizedFormat);
+
+const props = defineProps<{
+  members: (TeamMember & FirebaseEntity)[];
+  isLoading: boolean;
+}>();
 
 const route = useRoute();
 const db = useFirestore();
 const user = useCurrentUser();
+const { hasWriteAccess } = useTeamAccess(toRef(props, 'members'));
 
 const showLinkCopied = ref(false);
 
 const teamId = computed(() => route.params.teamId as string);
-
-const source = computed(() => {
-  return collection(db, 'teams', teamId.value, 'members');
-});
-const { data: members } = useCollection<TeamMember>(source);
 
 const copyInvitationLink = async () => {
   const data: TeamInvitation = {
@@ -39,6 +43,12 @@ const copyInvitationLink = async () => {
 
 const removeMember = async (memberId: string) => {
   await deleteDoc(doc(db, 'teams', teamId.value, 'members', memberId));
+};
+
+const updateRole = async (memberId: string, enableEditing: boolean) => {
+  await updateDoc(doc(db, 'teams', teamId.value, 'members', memberId), {
+    role: enableEditing ? 'moderator' : 'viewer',
+  });
 };
 </script>
 
@@ -63,12 +73,26 @@ const removeMember = async (memberId: string) => {
         </n-space>
       </n-space>
     </template>
-    <n-list-item v-for="member in members" :key="member.id">
-      <n-thing :title="member.email"></n-thing>
-      <template #suffix>
-        <n-button v-if="member.id !== user?.uid" @click="removeMember(member.id)" text>Remove</n-button>
-      </template>
-    </n-list-item>
+    <template v-if="isLoading">
+      <skeleton-list-item v-for="n in 3" :key="n" />
+    </template>
+    <template v-else>
+      <n-list-item v-for="member in members" :key="member.id">
+        <n-space justify="space-between" align="center">
+          <n-thing>
+            <template #header>{{ member.email }}</template>
+            <template #description>{{ member.role }}</template>
+          </n-thing>
+          <n-space v-if="member.role !== 'owner' && member.id !== user?.uid && hasWriteAccess" align="center">
+            <n-switch @update:value="updateRole(member.id, $event)">
+              <template #checked> Disable editing </template>
+              <template #unchecked> Enable editing </template>
+            </n-switch>
+            <n-button @click="removeMember(member.id)" text>Remove</n-button>
+          </n-space>
+        </n-space>
+      </n-list-item>
+    </template>
   </n-list>
 </template>
 

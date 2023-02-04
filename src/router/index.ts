@@ -78,6 +78,14 @@ const router = createRouter({
             },
           ],
         },
+        {
+          path: 'settings',
+          name: 'Settings',
+          component: () => import('@/views/SettingsView.vue'),
+          meta: {
+            requiresAuth: true,
+          },
+        },
       ],
     },
     {
@@ -91,7 +99,7 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   if (to.meta.requiresAuth) {
     const currentUser = await getCurrentUser();
-    if (!currentUser?.emailVerified) {
+    if (!currentUser) {
       return {
         path: '/login',
         query: {

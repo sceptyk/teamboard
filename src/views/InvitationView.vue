@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import PageLayout from '@/components/layout/PageLayout.vue';
-import PageHeader from '@/components/layout/PageHeader.vue';
 import { NResult, NSpin, NSpace } from 'naive-ui';
 import { computed, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { useCurrentUser, useDocument, useFirestore } from 'vuefire';
 import { arrayUnion, doc, getDoc, setDoc, updateDoc } from '@firebase/firestore';
-import StyledLink from '@/components/ui/StyledLink.vue';
+import StyledLink from '@/components/styled/StyledLink.vue';
 import type { TeamMember } from '@/types/TeamMember';
 
 const route = useRoute();
@@ -55,7 +54,7 @@ watch(invitation, async () => {
         successReason.value = 'You are already a member of the team';
       } else {
         await updateDoc(doc(db, 'teams', teamId as string), {
-          members: arrayUnion([user.value?.uid]),
+          members: arrayUnion(user.value?.uid),
         });
         const teamMemberData: TeamMember = {
           id: userId,
@@ -66,16 +65,22 @@ watch(invitation, async () => {
         successReason.value = "You're all set";
       }
     } catch (e) {
+      console.error(e);
       errorReason.value = 'There was an error adding you as a member';
     } finally {
       isLoading.value = false;
     }
   }
 });
+
+const breadcrumbs = computed(() => {
+  const { teamId } = route.params;
+  return [{ title: 'Team', route: { name: 'TeamBoard', params: { teamId } } }, { title: 'Invitation' }];
+});
 </script>
 
 <template>
-  <page-layout>
+  <page-layout :breadcrumbs="breadcrumbs">
     <template #content>
       <n-result
         v-if="isLoading"

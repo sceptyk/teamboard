@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { NSpace, NButton, NInput, NThing, NIcon, NForm, type FormRules } from 'naive-ui';
-import { ThumbsUpSharp as ThumbsUpSharpIcon, Pencil as PencilIcon } from '@vicons/ionicons5';
+import { ThumbsUpSharp as ThumbsUpSharpIcon, Pencil as PencilIcon, Trash as TrashIcon } from '@vicons/ionicons5';
 import type { RetroBoardCardType } from '@/types/RetroBoardCardType';
 import type { RetroBoardCard } from '@/types/RetroBoardCard';
 import type { Type as ButtonType } from 'naive-ui/es/button/src/interface';
-import { addDoc, arrayRemove, arrayUnion, collection, doc, updateDoc } from '@firebase/firestore';
+import { addDoc, arrayRemove, arrayUnion, collection, deleteDoc, doc, updateDoc } from '@firebase/firestore';
 import { useCurrentUser, useFirestore } from 'vuefire';
+import type { FirebaseEntity } from '@/types/FirebaseEntity';
 
 const props = defineProps<{
   teamId: string;
   boardId: string;
   type: RetroBoardCardType;
   revealed: boolean;
-  data?: RetroBoardCard & { readonly id: string };
+  data?: RetroBoardCard & FirebaseEntity;
 }>();
 
 const db = useFirestore();
@@ -103,7 +104,10 @@ const cardContent = computed(() => {
     return props.data?.text;
   } else if (props.data?.text) {
     const length = props.data.text.length;
-    return [new Array(length)].reduce((prev) => prev + String.fromCharCode(97 + Math.floor(Math.random() * 26)), '');
+    return [...new Array(length)].reduce((prev) => {
+      if (Math.random() > 0.85) return prev + ' ';
+      return prev + String.fromCharCode(97 + Math.floor(Math.random() * 26));
+    }, '');
   }
   return '';
 });
@@ -126,6 +130,12 @@ const vote = async () => {
       isVoting.value = false;
       cardModel.value.text = '';
     }
+  }
+};
+
+const remove = async () => {
+  if (props.data?.id && user.value) {
+    await deleteDoc(doc(db, 'teams', props.teamId, 'retro-boards', props.boardId, 'cards', props.data.id));
   }
 };
 </script>
@@ -155,13 +165,22 @@ const vote = async () => {
     </template>
     <template #footer>
       <n-space :justify="isAuthor ? 'space-between' : 'end'">
-        <n-button v-if="isAuthor" round quaternary type="default" size="small" @click="isEditing = !isEditing">
-          <template #icon>
-            <n-icon size="small">
-              <pencil-icon />
-            </n-icon>
-          </template>
-        </n-button>
+        <n-space v-if="isAuthor">
+          <n-button round quaternary type="default" size="small" @click="isEditing = !isEditing">
+            <template #icon>
+              <n-icon size="small">
+                <pencil-icon />
+              </n-icon>
+            </template>
+          </n-button>
+          <n-button round quaternary type="error" size="small" @click="remove">
+            <template #icon>
+              <n-icon size="small">
+                <trash-icon />
+              </n-icon>
+            </template>
+          </n-button>
+        </n-space>
         <n-button
           :disabled="isAuthor || !revealed"
           round

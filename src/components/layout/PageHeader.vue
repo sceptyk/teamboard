@@ -2,7 +2,8 @@
 import type { UserData } from '@/types/UserData';
 import { signOut } from '@firebase/auth';
 import { collection, doc } from '@firebase/firestore';
-import { NPageHeader, NGradientText, NTag, NSpace, NDropdown } from 'naive-ui';
+import { NPageHeader, NGradientText, NTag, NSpace, NDropdown, NIcon, NButton } from 'naive-ui';
+import { LogoGithub as LogoGithubIcon } from '@vicons/ionicons5';
 import { useRouter } from 'vue-router';
 import { useCurrentUser, useDocument, useFirebaseAuth, useFirestore } from 'vuefire';
 
@@ -15,6 +16,10 @@ const userData = useDocument<UserData>(doc(collection(db, 'users'), user.value?.
 
 const userMenuItems = [
   {
+    label: 'Settings',
+    key: 'settings',
+  },
+  {
     label: 'Sign out',
     key: 'signout',
   },
@@ -24,6 +29,8 @@ const onMenuItemSelect = async (key: string) => {
   if (key === 'signout') {
     await signOut(auth!);
     router.push('/login');
+  } else if (key === 'settings') {
+    router.push('/settings');
   }
 };
 </script>
@@ -39,12 +46,22 @@ const onMenuItemSelect = async (key: string) => {
         </n-gradient-text>
       </router-link>
     </template>
+    <template #subtitle>
+      <slot name="breadcrumbs" />
+    </template>
     <template #extra>
       <n-space>
+        <n-button tag="a" href="https://github.com/sceptyk/teamboard" target="_blank" quaternary type="default" round>
+          <template #icon>
+            <n-icon>
+              <logo-github-icon />
+            </n-icon>
+          </template>
+        </n-button>
         <n-dropdown trigger="click" :options="userMenuItems" placement="bottom-end" @select="onMenuItemSelect">
-          <n-tag round bordered size="large">
+          <n-button round bordered>
             {{ userData?.name ?? '' }}
-          </n-tag>
+          </n-button>
         </n-dropdown>
       </n-space>
     </template>

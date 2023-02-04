@@ -20,6 +20,7 @@ import {
   NButton,
   NIcon,
   NTag,
+  NSkeleton,
 } from 'naive-ui';
 import {
   Eye as EyeIcon,
@@ -33,6 +34,9 @@ import type { PlanningBoard } from '@/types/PlanningBoard';
 import type { PlanningBoardTicket } from '@/types/PlanningBoardTicket';
 import type { PlanningBoardActiveUser } from '@/types/PlanningBoardActiveUser';
 import dayjs from 'dayjs';
+import ShareLinkButton from '@/components/ShareLinkButton.vue';
+import { useMembers } from '@/composables/useMembers';
+import { useTeamAccess } from '@/composables/useTeamAccess';
 
 const route = useRoute();
 const db = useFirestore();
@@ -92,9 +96,12 @@ const ticketsSource = computed(() => {
 });
 const { data: tickets } = useCollection<PlanningBoardTicket>(ticketsSource);
 
+const isTicketsLoading = ref(true);
+watch(tickets, () => (isTicketsLoading.value = false));
+
 const activeTicket = computed(() => {
   if (board.value?.activeTicket) {
-    return tickets.value.find(({ id }) => id === board.value?.activeTicket);
+    return tickets.value?.find(({ id }) => id === board.value?.activeTicket);
   }
   return undefined;
 });
@@ -107,10 +114,12 @@ const voteValues = ['1', '2', '3', '5', '8', '13', '?'];
 const selectedVote = ref<string | undefined>();
 
 const selectActiveTicket = async (ticketId: string | null) => {
-  const { teamId, boardId } = route.params;
-  await updateDoc(doc(db, 'teams', teamId as string, 'planning-boards', boardId as string), {
-    activeTicket: ticketId,
-  });
+  if (hasWriteAccess.value) {
+    const { teamId, boardId } = route.params;
+    await updateDoc(doc(db, 'teams', teamId as string, 'planning-boards', boardId as string), {
+      activeTicket: ticketId,
+    });
+  }
 };
 
 const selectEstimate = async (value: string) => {
@@ -160,10 +169,19 @@ const averageEstimate = computed(() => {
   }
   return '-';
 });
+
+const breadcrumbs = computed(() => {
+  const { teamId } = route.params;
+  return [{ title: 'Team', route: { name: 'TeamBoard', params: { teamId } } }, { title: 'Planning board' }];
+});
+
+const teamId = computed(() => route.params.teamId as string);
+const { data: members } = useMembers(teamId);
+const { hasWriteAccess } = useTeamAccess(members);
 </script>
 
 <template>
-  <page-layout>
+  <page-layout :breadcrumbs="breadcrumbs">
     <template #main>
       <page-content>
         <template #sider>
@@ -172,20 +190,31 @@ const averageEstimate = computed(() => {
               <n-text>Tickets</n-text>
             </n-h3>
             <create-ticket-inline
+              v-if="hasWriteAccess"
               ref="createTicketInlineRef"
               :team-id="($route.params.teamId as string)"
               :board-id="($route.params.boardId as string)"
             />
-            <n-list v-if="tickets?.length" hoverable clickable>
-              <n-list-item v-for="ticket in tickets" :key="ticket.id" @click="selectActiveTicket(ticket.id)">
-                <template #prefix>
-                  <n-radio
-                    :checked="ticket.estimate != null || ticket.id === activeTicket?.id"
-                    :disabled="ticket.estimate != null"
-                  />
-                </template>
-                <n-thing :title="ticket.title" :title-extra="ticket.estimate ? `${ticket.estimate} points` : ''" />
-              </n-list-item>
+            <n-list v-if="tickets?.length || isTicketsLoading" hoverable :clickable="hasWriteAccess">
+              <template v-if="isTicketsLoading">
+                <n-list-item v-for="n in 5" :key="n">
+                  <n-space>
+                    <n-skeleton width="40px" />
+                    <n-skeleton width="120px" />
+                  </n-space>
+                </n-list-item>
+              </template>
+              <template v-else>
+                <n-list-item v-for="ticket in tickets" :key="ticket.id" @click="selectActiveTicket(ticket.id)">
+                  <template #prefix>
+                    <n-radio
+                      :checked="ticket.estimate != null || ticket.id === activeTicket?.id"
+                      :disabled="ticket.estimate != null"
+                    />
+                  </template>
+                  <n-thing :title="ticket.title" :title-extra="ticket.estimate ? `${ticket.estimate} points` : ''" />
+                </n-list-item>
+              </template>
             </n-list>
             <n-space justify="center" v-else>
               <n-empty />
@@ -193,9 +222,12 @@ const averageEstimate = computed(() => {
           </n-space>
         </template>
         <template #content>
-          <n-h1>
-            <n-text>{{ board?.name ?? 'Board title' }}</n-text>
-          </n-h1>
+          <n-space justify="space-between" align="center" style="margin-bottom: 24px">
+            <n-h1>
+              <n-text>{{ board?.name ?? 'Board title' }}</n-text>
+            </n-h1>
+            <share-link-button />
+          </n-space>
           <n-h2 prefix="bar">
             <n-text>{{ activeTicket?.title ?? 'No selected ticket' }}</n-text>
           </n-h2>
@@ -219,25 +251,27 @@ const averageEstimate = computed(() => {
                   <n-h3 style="margin: 0">
                     <n-text>Active users</n-text>
                   </n-h3>
-                  <n-button
-                    v-if="!activeTicket?.revealed"
-                    :disabled="!activeTicket"
-                    type="default"
-                    @click="revealEstimates"
-                  >
-                    <template #icon>
-                      <n-icon>
-                        <eye-icon />
-                      </n-icon> </template
-                    >Show</n-button
-                  >
-                  <n-button v-else ghost type="primary" @click="acceptEstimate">
-                    <template #icon>
-                      <n-icon>
-                        <checkmark-icon />
-                      </n-icon> </template
-                    >Accept</n-button
-                  >
+                  <template v-if="hasWriteAccess">
+                    <n-button
+                      v-if="!activeTicket?.revealed"
+                      :disabled="!activeTicket"
+                      type="default"
+                      @click="revealEstimates"
+                    >
+                      <template #icon>
+                        <n-icon>
+                          <eye-icon />
+                        </n-icon> </template
+                      >Show</n-button
+                    >
+                    <n-button v-else ghost type="primary" @click="acceptEstimate">
+                      <template #icon>
+                        <n-icon>
+                          <checkmark-icon />
+                        </n-icon> </template
+                      >Accept</n-button
+                    >
+                  </template>
                 </n-space>
               </template>
               <n-list-item v-for="user in activeUsers" :key="user.id">
