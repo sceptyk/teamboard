@@ -14,8 +14,8 @@ jobs:
           node-version: 16
       - run: yarn install --freeze
       - run: yarn build
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_TEAMBOARD_9C15F }}'
-          projectId: teamboard-9c15f
+      # - uses: FirebaseExtended/action-hosting-deploy@v0
+      #   with:
+      #     repoToken: '${{ secrets.GITHUB_TOKEN }}'
+      #     firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_TEAMBOARD_9C15F }}'
+      #     projectId: teamboard-9c15f
