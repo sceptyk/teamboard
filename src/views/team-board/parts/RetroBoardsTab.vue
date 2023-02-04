@@ -36,8 +36,8 @@ const { hasWriteAccess } = useTeamAccess(toRef(props, 'members'));
 
 <template>
   <n-list hoverable>
-    <template #header>
-      <n-space v-if="hasWriteAccess" justify="end" align="center">
+    <template #header v-if="hasWriteAccess">
+      <n-space justify="end" align="center">
         <n-button @click="openModal" type="primary">Create board</n-button>
       </n-space>
     </template>
