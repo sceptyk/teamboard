@@ -25,7 +25,7 @@ onMounted(async () => {
 <template>
   <n-space justify="center" class="wrapper">
     <n-card title="Teamboard Login" size="large" class="card">
-      <n-tabs size="large" animated>
+      <n-tabs size="large" animated default-value="singin">
         <n-tab-pane name="signin" tab="Sign in">
           <sign-in-tab @complete="navigateToAuthRoutes" />
         </n-tab-pane>

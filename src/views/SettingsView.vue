@@ -37,6 +37,7 @@ watch(
   (value) => {
     settingsModel.value.name = value;
   },
+  { immediate: true },
 );
 
 const updateName = () => {

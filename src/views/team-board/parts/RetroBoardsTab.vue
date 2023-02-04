@@ -39,7 +39,7 @@ const { hasWriteAccess } = useTeamAccess(toRef(props, 'members'));
 </script>
 
 <template>
-  <n-list v-if="boards.length || isLoading" hoverable>
+  <n-list hoverable>
     <template #header>
       <n-space v-if="hasWriteAccess" justify="end" align="center">
         <n-button @click="openModal" type="primary">Create board</n-button>
@@ -49,7 +49,7 @@ const { hasWriteAccess } = useTeamAccess(toRef(props, 'members'));
     <template v-if="isLoading">
       <skeleton-list-item v-for="n in 3" :key="n" />
     </template>
-    <template v-else>
+    <template v-else-if="boards?.length">
       <n-list-item v-for="board in boards" :key="board.id">
         <n-thing :title="board.name"> Created: {{ dayjs(board.date.toDate()).format('L') }} </n-thing>
         <template #suffix>
@@ -66,12 +66,16 @@ const { hasWriteAccess } = useTeamAccess(toRef(props, 'members'));
         </template>
       </n-list-item>
     </template>
-  </n-list>
-  <n-empty v-else description="No boards found">
-    <template #extra>
-      <n-button size="small" @click="openModal"> Create new board </n-button>
+    <template v-else>
+      <n-list-item>
+        <n-empty description="No boards found">
+          <template #extra>
+            <n-button size="small" @click="openModal"> Create new board </n-button>
+          </template>
+        </n-empty>
+      </n-list-item>
     </template>
-  </n-empty>
+  </n-list>
   <create-retro-board-modal v-model:is-visible="isModalVisible" :team-id="teamId" />
 </template>
 

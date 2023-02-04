@@ -4,7 +4,7 @@ import PageLayout from '@/components/layout/PageLayout.vue';
 import PlanningBoardsTab from '@/views/team-board/parts/PlanningBoardsTab.vue';
 import RetroBoardsTab from '@/views/team-board/parts/RetroBoardsTab.vue';
 import MembersTab from '@/views/team-board/parts/MembersTab.vue';
-import { computed, ref, toRef, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { collection, orderBy, query } from '@firebase/firestore';
 import { useCollection, useFirestore } from 'vuefire';
@@ -47,7 +47,7 @@ const { data: members, isLoading: isMembersLoading } = useMembers(teamId);
 <template>
   <page-layout>
     <template #content>
-      <n-tabs type="line" animated>
+      <n-tabs type="line" animated default-value="planning">
         <n-tab-pane name="planning" tab="Planning">
           <planning-boards-tab :boards="planningBoards" :is-loading="isPlanningBoardsLoading" :members="members" />
         </n-tab-pane>

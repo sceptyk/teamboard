@@ -54,7 +54,7 @@ const updateRole = async (memberId: string, enableEditing: boolean) => {
 
 <template>
   <n-list hoverable>
-    <template #header>
+    <template #header v-if="hasWriteAccess">
       <n-space justify="end" align="center">
         <n-space>
           <n-tooltip :show="showLinkCopied" placement="top-end">

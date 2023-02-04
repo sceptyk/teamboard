@@ -32,7 +32,7 @@ const openModal = () => {
 <template>
   <page-layout>
     <template #content>
-      <n-list v-if="teams.length || isLoading" hoverable>
+      <n-list hoverable>
         <template #header>
           <n-space justify="space-between" align="center">
             <n-h1 style="margin-bottom: 0">
@@ -44,7 +44,7 @@ const openModal = () => {
         <template v-if="isLoading">
           <skeleton-list-item v-for="n in 3" :key="n" />
         </template>
-        <template v-else>
+        <template v-else-if="teams?.length">
           <n-list-item v-for="team in teams" :key="team.id">
             <n-thing :title="team.name"> Number of members: {{ team.members.length }} </n-thing>
             <template #suffix>
@@ -58,12 +58,16 @@ const openModal = () => {
             </template>
           </n-list-item>
         </template>
-      </n-list>
-      <n-empty v-else description="No teams found">
-        <template #extra>
-          <n-button size="small" @click="openModal"> Create new team </n-button>
+        <template v-else>
+          <n-list-item>
+            <n-empty description="No teams found">
+              <template #extra>
+                <n-button size="small" @click="openModal"> Create new team </n-button>
+              </template>
+            </n-empty>
+          </n-list-item>
         </template>
-      </n-empty>
+      </n-list>
     </template>
   </page-layout>
   <create-team-modal v-model:is-visible="isCreateModalVisible" />

@@ -45,7 +45,7 @@ watch(error, () => {
 
 watch(invitation, async () => {
   const { teamId } = route.params;
-  if (invitation) {
+  if (invitation.value) {
     try {
       const userId = user.value?.uid!;
       const isMember = await getDoc(doc(db, 'teams', teamId as string, 'members', userId));
@@ -53,15 +53,17 @@ watch(invitation, async () => {
       if (isMember.exists()) {
         successReason.value = 'You are already a member of the team';
       } else {
-        await updateDoc(doc(db, 'teams', teamId as string), {
-          members: arrayUnion(user.value?.uid),
-        });
         const teamMemberData: TeamMember = {
-          id: userId,
+          invitation: invitation.value.id,
           email: user.value?.email!,
           role: 'viewer',
         };
         await setDoc(doc(db, 'teams', teamId as string, 'members', userId), teamMemberData);
+
+        await updateDoc(doc(db, 'teams', teamId as string), {
+          members: arrayUnion(user.value?.uid),
+        });
+
         successReason.value = "You're all set";
       }
     } catch (e) {
