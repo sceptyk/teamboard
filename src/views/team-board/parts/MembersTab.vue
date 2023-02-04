@@ -4,7 +4,7 @@ import { useCurrentUser, useFirestore } from 'vuefire';
 import type { TeamMember } from '@/types/TeamMember';
 import { useRoute } from 'vue-router';
 import { computed, ref, toRef } from 'vue';
-import { addDoc, collection, deleteDoc, doc, Timestamp, updateDoc } from '@firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, serverTimestamp, Timestamp, updateDoc } from '@firebase/firestore';
 import type { TeamInvitation } from '@/types/TeamInvitation';
 import { Link as LinkIcon } from '@vicons/ionicons5';
 import type { FirebaseEntity } from '@/types/FirebaseEntity';
@@ -26,10 +26,9 @@ const showLinkCopied = ref(false);
 const teamId = computed(() => route.params.teamId as string);
 
 const copyInvitationLink = async () => {
-  const data: TeamInvitation = {
-    date: Timestamp.fromDate(new Date()),
-  };
-  const invitation = await addDoc(collection(db, 'teams', teamId.value, 'invitations'), data);
+  const invitation = await addDoc(collection(db, 'teams', teamId.value, 'invitations'), {
+    date: serverTimestamp(),
+  });
   await navigator.clipboard.writeText(
     `${window.location.protocol}//${window.location.host}/teams/${teamId.value}/invitation/${invitation.id}`,
   );

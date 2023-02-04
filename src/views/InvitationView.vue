@@ -48,9 +48,15 @@ watch(invitation, async () => {
   if (invitation.value) {
     try {
       const userId = user.value?.uid!;
-      const isMember = await getDoc(doc(db, 'teams', teamId as string, 'members', userId));
+      let isMember = false;
+      try {
+        const response = await getDoc(doc(db, 'teams', teamId as string, 'members', userId));
+        isMember = response.exists();
+      } catch (e) {
+        console.warn(e);
+      }
 
-      if (isMember.exists()) {
+      if (isMember) {
         successReason.value = 'You are already a member of the team';
       } else {
         const teamMemberData: TeamMember = {
