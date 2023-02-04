@@ -6,7 +6,7 @@ import { useRoute } from 'vue-router';
 import { computed, ref, toRef } from 'vue';
 import { addDoc, collection, deleteDoc, doc, Timestamp, updateDoc } from '@firebase/firestore';
 import dayjs from 'dayjs';
-import LocalizedFormat from 'dayjs/plugin/LocalizedFormat';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import type { TeamInvitation } from '@/types/TeamInvitation';
 import { Link as LinkIcon } from '@vicons/ionicons5';
 import type { FirebaseEntity } from '@/types/FirebaseEntity';

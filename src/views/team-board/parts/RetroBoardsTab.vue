@@ -6,7 +6,7 @@ import { computed, ref, toRef } from 'vue';
 import { deleteDoc, doc } from '@firebase/firestore';
 import CreateRetroBoardModal from '@/views/team-board/parts/CreateRetroBoardModal.vue';
 import dayjs from 'dayjs';
-import LocalizedFormat from 'dayjs/plugin/LocalizedFormat';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import StyledLink from '@/components/styled/StyledLink.vue';
 import SkeletonListItem from '@/components/SkeletonListItem.vue';
 import type { FirebaseEntity } from '@/types/FirebaseEntity';

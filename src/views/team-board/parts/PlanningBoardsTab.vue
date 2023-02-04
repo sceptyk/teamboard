@@ -7,7 +7,7 @@ import { computed, ref, toRef } from 'vue';
 import { deleteDoc, doc } from '@firebase/firestore';
 import CreatePlanningBoardModal from '@/views/team-board/parts/CreatePlanningBoardModal.vue';
 import dayjs from 'dayjs';
-import LocalizedFormat from 'dayjs/plugin/LocalizedFormat';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import StyledLink from '@/components/styled/StyledLink.vue';
 import type { FirebaseEntity } from '@/types/FirebaseEntity';
 import SkeletonListItem from '@/components/SkeletonListItem.vue';
