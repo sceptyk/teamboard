@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { NList, NListItem, NThing, NEmpty, NButton, NSpace } from 'naive-ui';
-import { useCollection, useFirestore } from 'vuefire';
-import type { PlanningBoard } from '@/types/PlanningBoard';
+import { useFirestore } from 'vuefire';
 import { useRoute } from 'vue-router';
 import { computed, ref, toRef } from 'vue';
-import { collection, deleteDoc, doc, orderBy, query } from '@firebase/firestore';
+import { deleteDoc, doc } from '@firebase/firestore';
 import CreateRetroBoardModal from '@/views/team-board/parts/CreateRetroBoardModal.vue';
 import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/LocalizedFormat';
@@ -18,7 +17,7 @@ import { useTeamAccess } from '@/composables/useTeamAccess';
 dayjs.extend(LocalizedFormat);
 
 const props = defineProps<{
-  members: TeamMember[];
+  members: (TeamMember & FirebaseEntity)[];
   boards: (RetroBoard & FirebaseEntity)[];
   isLoading: boolean;
 }>();

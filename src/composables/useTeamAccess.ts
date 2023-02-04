@@ -1,8 +1,9 @@
+import type { FirebaseEntity } from '@/types/FirebaseEntity';
 import type { TeamMember } from '@/types/TeamMember';
 import { computed, type Ref } from 'vue';
 import { useCurrentUser } from 'vuefire';
 
-export function useTeamAccess(members: Ref<TeamMember[]>) {
+export function useTeamAccess(members: Ref<(TeamMember & FirebaseEntity)[]>) {
   const user = useCurrentUser();
 
   const hasWriteAccess = computed(() => {

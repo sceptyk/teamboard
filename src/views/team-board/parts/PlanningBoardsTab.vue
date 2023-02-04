@@ -17,7 +17,7 @@ import type { TeamMember } from '@/types/TeamMember';
 dayjs.extend(LocalizedFormat);
 
 const props = defineProps<{
-  members: TeamMember[];
+  members: (TeamMember & FirebaseEntity)[];
   boards: (PlanningBoard & FirebaseEntity)[];
   isLoading: boolean;
 }>();

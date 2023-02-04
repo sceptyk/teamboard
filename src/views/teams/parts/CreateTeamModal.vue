@@ -46,7 +46,6 @@ const createTeam = async () => {
         };
         const team = await addDoc(collection(db, 'teams'), teamData);
         const teamMemberData: TeamMember = {
-          id: userId,
           email: user.value?.email!,
           role: 'owner',
         };
