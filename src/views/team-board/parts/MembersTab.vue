@@ -5,15 +5,11 @@ import type { TeamMember } from '@/types/TeamMember';
 import { useRoute } from 'vue-router';
 import { computed, ref, toRef } from 'vue';
 import { addDoc, collection, deleteDoc, doc, Timestamp, updateDoc } from '@firebase/firestore';
-import dayjs from 'dayjs';
-import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import type { TeamInvitation } from '@/types/TeamInvitation';
 import { Link as LinkIcon } from '@vicons/ionicons5';
 import type { FirebaseEntity } from '@/types/FirebaseEntity';
 import SkeletonListItem from '@/components/SkeletonListItem.vue';
 import { useTeamAccess } from '@/composables/useTeamAccess';
-
-dayjs.extend(LocalizedFormat);
 
 const props = defineProps<{
   members: (TeamMember & FirebaseEntity)[];

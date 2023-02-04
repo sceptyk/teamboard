@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { getCurrentUser } from 'vuefire';
 import SignInTab from '@/views/login/parts/SignInTab.vue';
 import SignUpTab from '@/views/login/parts/SignUpTab.vue';
+import TeamboardLogo from '@/components/TeamboardLogo.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -24,8 +25,11 @@ onMounted(async () => {
 
 <template>
   <n-space justify="center" class="wrapper">
-    <n-card title="Teamboard Login" size="large" class="card">
-      <n-tabs size="large" animated default-value="singin">
+    <n-card size="large" class="card">
+      <template #header>
+        <teamboard-logo />
+      </template>
+      <n-tabs default-value="signin" size="large" animated type="line">
         <n-tab-pane name="signin" tab="Sign in">
           <sign-in-tab @complete="navigateToAuthRoutes" />
         </n-tab-pane>
