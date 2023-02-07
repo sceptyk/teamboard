@@ -160,12 +160,11 @@ const acceptEstimate = async () => {
 
 const averageEstimate = computed(() => {
   if (activeTicket.value?.revealed) {
-    return (
-      activeUsers.value.reduce(
-        (prev, curr) => (!isNaN(curr.estimate?.value) ? parseInt(curr.estimate?.value) : 0 + prev),
-        0,
-      ) / activeUsers.value.length
-    );
+    const estimateValues = activeUsers.value
+      .map((user) => user.estimate?.value)
+      .filter((value) => value && !isNaN(value));
+
+    return estimateValues.reduce((prev, curr) => parseInt(curr) + prev, 0) / estimateValues.length;
   }
   return '-';
 });
