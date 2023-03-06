@@ -164,7 +164,8 @@ const averageEstimate = computed(() => {
       .map((user) => user.estimate?.value)
       .filter((value) => value && !isNaN(value));
 
-    return estimateValues.reduce((prev, curr) => parseInt(curr) + prev, 0) / estimateValues.length;
+    const floatingEstimate = estimateValues.reduce((prev, curr) => parseInt(curr) + prev, 0) / estimateValues.length;
+    return Math.round(floatingEstimate).toFixed(2);
   }
   return '-';
 });
